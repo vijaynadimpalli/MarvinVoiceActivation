@@ -12,12 +12,19 @@ from shutil import copyfile,make_archive
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from scipy.signal import spectrogram,get_window
-import os,gc
+import gc
 from pydub import AudioSegment
 
+import numpy as np
+from pydub import AudioSegment
+import random
+import sys
+import io
+import glob
+import h5py
 
-activates_folder = os.path.join('./data','marvin')
-backgrounds_folder =  os.path.join('./data','_background_noise_')
+
+
 num_actives = 500
 num_negatives = 500
 train_examples = 6400
@@ -25,14 +32,7 @@ val_examples = 320
 chunk_size = 16
 
 
-import numpy as np
-from pydub import AudioSegment
-import random
-import sys
-import io
-import os
-import glob
-import h5py
+
 
 Tx = 1998  # The number of time steps input to the model from the spectrogram
 n_freq = 101  # Number of frequencies input to the model at each time step of the spectrogram
@@ -68,14 +68,12 @@ if __name__ == "__main__":
 
     file.extractall(path='./data')
     
+    activates_folder = os.path.join('./data','marvin')
+    backgrounds_folder =  os.path.join('./data','_background_noise_')    
     
     files = [os.path.join('./data',x) for x in os.listdir('./data')]
     files.remove(activates_folder)
     files.remove(backgrounds_folder)
-
-
-
-
 
     folders = list(filter(lambda x: os.path.isdir(x),files))
 
@@ -93,13 +91,12 @@ if __name__ == "__main__":
     for file in os.listdir(backgrounds_folder):
       copyfile(os.path.join(backgrounds_folder,file),os.path.join('./raw_data/backgrounds',os.path.split(file)[-1]))
 
-
     print(len(os.listdir('./raw_data/activates')))
     
     
+    #************************************************************************************************************#
+    
     plt.ioff()
-    
-    
     #fig = plt.figure()
 
 
