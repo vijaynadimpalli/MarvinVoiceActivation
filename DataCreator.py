@@ -23,14 +23,6 @@ import io
 import glob
 import h5py
 
-
-
-num_actives = 500
-num_negatives = 500
-train_examples = 6400
-val_examples = 320
-chunk_size = 16
-
 Tx = 1998  # The number of time steps input to the model from the spectrogram
 n_freq = 101  # Number of frequencies input to the model at each time step of the spectrogram
 Ty = 496  # The number of time steps in the output of our model
