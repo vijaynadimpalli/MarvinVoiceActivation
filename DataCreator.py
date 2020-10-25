@@ -300,9 +300,8 @@ def create_training_example(backgrounds, activates, negatives):
 
     return x.T, y.T
 
-
-
-if __name__ == "__main__":
+    
+def main():
     wget.download('http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz')
     os.mkdir('./raw_data')
     os.mkdir('./raw_data/negatives')
@@ -393,6 +392,9 @@ if __name__ == "__main__":
 
 
     #gc.collect()
+    
+if __name__ == "__main__":
+    main()
 
 
 
