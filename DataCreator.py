@@ -1,46 +1,19 @@
 import wget
 import os
 
-wget.download('http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz')
-os.mkdir('./raw_data')
-os.mkdir('./raw_data/negatives')
-os.mkdir('./raw_data/activates')
-os.mkdir('./raw_data/backgrounds')
-
-os.mkdir('./XY_train')
-os.mkdir('./XY_dev')
-
-
-
 import base64
-def create_onedrive_directdownload(onedrive_link):
-    data_bytes64 = base64.b64encode(bytes(onedrive_link, 'utf-8'))
-    data_bytes64_String = data_bytes64.decode('utf-8').replace('/','_').replace('+','-').rstrip("=")
-    resultUrl = f"https://api.onedrive.com/v1.0/shares/u!{data_bytes64_String}/root/content"
-    return resultUrl
-
-
-
-#getting chime.wav
-
-wget.download(create_onedrive_directdownload('https://1drv.ms/u/s!AjYYbRcfzZT5yxF7J6tKXP5yp8vl?e=psvSJK'))
-
-
 import matplotlib as mpl
-
-
-
-backend_ =  mpl.get_backend() 
-mpl.use("Agg")  # Prevent showing stuff
-
-
-
-
 import tarfile
 
-file=tarfile.open('/content/speech_commands_v0.01.tar.gz')
 
-file.extractall(path='./data')
+import random
+from shutil import copyfile,make_archive
+
+import matplotlib.pyplot as plt
+from scipy.io import wavfile
+from scipy.signal import spectrogram,get_window
+import os,gc
+from pydub import AudioSegment
 
 
 activates_folder = os.path.join('./data','marvin')
@@ -52,43 +25,133 @@ val_examples = 320
 chunk_size = 16
 
 
-files = [os.path.join('./data',x) for x in os.listdir('./data')]
-files.remove(activates_folder)
-files.remove(backgrounds_folder)
-
-
-
-
-import random
-from shutil import copyfile,make_archive
-
-folders = list(filter(lambda x: os.path.isdir(x),files))
-
-files_in = []
-for folder in folders:
-  files_in.extend([os.path.join(folder,x) for x in os.listdir(folder)])
-
-
-for file in random.sample(files_in,num_negatives):
-  copyfile(file,os.path.join('./raw_data/negatives',os.path.split(file)[-1]))
-
-for file in random.sample(os.listdir(activates_folder),num_actives):
-  copyfile(os.path.join(activates_folder,file),os.path.join('./raw_data/activates',os.path.split(file)[-1]))
-
-for file in os.listdir(backgrounds_folder):
-  copyfile(os.path.join(backgrounds_folder,file),os.path.join('./raw_data/backgrounds',os.path.split(file)[-1]))
-
-
-print(len(os.listdir('./raw_data/activates')))
-
-
-import matplotlib.pyplot as plt
-from scipy.io import wavfile
-from scipy.signal import spectrogram,get_window
-import os,gc
+import numpy as np
 from pydub import AudioSegment
+import random
+import sys
+import io
+import os
+import glob
+import h5py
 
-plt.ioff()
+Tx = 1998  # The number of time steps input to the model from the spectrogram
+n_freq = 101  # Number of frequencies input to the model at each time step of the spectrogram
+
+
+Ty = 496  # The number of time steps in the output of our model
+
+
+
+# Load audio segments using pydub
+activates, negatives, backgrounds = load_raw_audio()
+
+
+
+if __name__ == "__main__":
+    wget.download('http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz')
+    os.mkdir('./raw_data')
+    os.mkdir('./raw_data/negatives')
+    os.mkdir('./raw_data/activates')
+    os.mkdir('./raw_data/backgrounds')
+
+    os.mkdir('./XY_train')
+    os.mkdir('./XY_dev')
+    
+    #getting chime.wav
+
+    wget.download(create_onedrive_directdownload('https://1drv.ms/u/s!AjYYbRcfzZT5yxF7J6tKXP5yp8vl?e=psvSJK'))
+    
+    backend_ =  mpl.get_backend() 
+    mpl.use("Agg")  # Prevent showing stuff
+    
+    file=tarfile.open('/content/speech_commands_v0.01.tar.gz')
+
+    file.extractall(path='./data')
+    
+    
+    files = [os.path.join('./data',x) for x in os.listdir('./data')]
+    files.remove(activates_folder)
+    files.remove(backgrounds_folder)
+
+
+
+
+
+    folders = list(filter(lambda x: os.path.isdir(x),files))
+
+    files_in = []
+    for folder in folders:
+      files_in.extend([os.path.join(folder,x) for x in os.listdir(folder)])
+
+
+    for file in random.sample(files_in,num_negatives):
+      copyfile(file,os.path.join('./raw_data/negatives',os.path.split(file)[-1]))
+
+    for file in random.sample(os.listdir(activates_folder),num_actives):
+      copyfile(os.path.join(activates_folder,file),os.path.join('./raw_data/activates',os.path.split(file)[-1]))
+
+    for file in os.listdir(backgrounds_folder):
+      copyfile(os.path.join(backgrounds_folder,file),os.path.join('./raw_data/backgrounds',os.path.split(file)[-1]))
+
+
+    print(len(os.listdir('./raw_data/activates')))
+    
+    
+    plt.ioff()
+    
+    
+    #fig = plt.figure()
+
+
+    f1 = h5py.File("./XY_train/XY.h5",'w')
+
+    X_train = f1.create_dataset("X_train",(train_examples,Tx,n_freq),chunks=(chunk_size,Tx,n_freq))
+    Y_train = f1.create_dataset("Y_train",(train_examples,Ty,1),chunks=(chunk_size,Ty,1))
+
+
+    X = np.zeros((chunk_size,Tx,n_freq))
+    Y = np.zeros((chunk_size,Ty,1))
+
+    for i in np.arange(0,train_examples,chunk_size):
+      for j in range(chunk_size):
+        X[j], Y[j] = create_training_example(backgrounds, activates, negatives)
+
+      print(str(i/chunk_size) + " Chunk stored")
+      X_train[i:i+chunk_size,:,:] = X
+      Y_train[i:i+chunk_size,:,:] = Y
+
+    f1.close()
+
+
+    f2 = h5py.File("./XY_dev/XY_dev.h5",'w')
+
+    X_test = f2.create_dataset("X_test",(val_examples,Tx,n_freq),chunks=(chunk_size,Tx,n_freq))
+    Y_test = f2.create_dataset("Y_test",(val_examples,Ty,1),chunks=(chunk_size,Ty,1))
+
+    for i in np.arange(0,val_examples,chunk_size):
+      for j in range(chunk_size):
+        X[j], Y[j] = create_training_example(backgrounds, activates, negatives)
+
+      print(str(i/chunk_size) + " Chunk stored")
+      X_test[i:i+chunk_size,:,:] = X
+      Y_test[i:i+chunk_size,:,:] = Y
+
+    f2.close()
+
+
+    #gc.collect()
+
+
+
+
+def create_onedrive_directdownload(onedrive_link):
+    data_bytes64 = base64.b64encode(bytes(onedrive_link, 'utf-8'))
+    data_bytes64_String = data_bytes64.decode('utf-8').replace('/','_').replace('+','-').rstrip("=")
+    resultUrl = f"https://api.onedrive.com/v1.0/shares/u!{data_bytes64_String}/root/content"
+    return resultUrl
+
+
+
 # Calculate and plot spectrogram for a wav audio file
 def graph_spectrogram(wav_file,is_train=False):
     rate, data = get_wav_info(wav_file)
@@ -157,25 +220,7 @@ def load_raw_audio():
     return activates, negatives, backgrounds
 
 
-import numpy as np
-from pydub import AudioSegment
-import random
-import sys
-import io
-import os
-import glob
-import h5py
 
-Tx = 1998  # The number of time steps input to the model from the spectrogram
-n_freq = 101  # Number of frequencies input to the model at each time step of the spectrogram
-
-
-Ty = 496  # The number of time steps in the output of our model
-
-
-
-# Load audio segments using pydub
-activates, negatives, backgrounds = load_raw_audio()
 
 def get_random_time_segment(segment_ms):
     """
@@ -364,44 +409,5 @@ def create_training_example(backgrounds, activates, negatives):
     return x.T, y.T
 
 
-#fig = plt.figure()
 
-
-f1 = h5py.File("./XY_train/XY.h5",'w')
-
-X_train = f1.create_dataset("X_train",(train_examples,Tx,n_freq),chunks=(chunk_size,Tx,n_freq))
-Y_train = f1.create_dataset("Y_train",(train_examples,Ty,1),chunks=(chunk_size,Ty,1))
-
-
-X = np.zeros((chunk_size,Tx,n_freq))
-Y = np.zeros((chunk_size,Ty,1))
-
-for i in np.arange(0,train_examples,chunk_size):
-  for j in range(chunk_size):
-    X[j], Y[j] = create_training_example(backgrounds, activates, negatives)
-  
-  print(str(i/chunk_size) + " Chunk stored")
-  X_train[i:i+chunk_size,:,:] = X
-  Y_train[i:i+chunk_size,:,:] = Y
-
-f1.close()
-
-
-f2 = h5py.File("./XY_dev/XY_dev.h5",'w')
-
-X_test = f2.create_dataset("X_test",(val_examples,Tx,n_freq),chunks=(chunk_size,Tx,n_freq))
-Y_test = f2.create_dataset("Y_test",(val_examples,Ty,1),chunks=(chunk_size,Ty,1))
-
-for i in np.arange(0,val_examples,chunk_size):
-  for j in range(chunk_size):
-    X[j], Y[j] = create_training_example(backgrounds, activates, negatives)
-  
-  print(str(i/chunk_size) + " Chunk stored")
-  X_test[i:i+chunk_size,:,:] = X
-  Y_test[i:i+chunk_size,:,:] = Y
-
-f2.close()
-
-
-#gc.collect()
 
