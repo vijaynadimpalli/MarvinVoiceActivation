@@ -295,11 +295,7 @@ def create_training_example(backgrounds, activates, negatives):
     
 def main(args):
     
-    num_actives = args[1]
-    num_negatives = args[2]
-    train_examples = args[3]
-    val_examples = args[4]
-    chunk_size = args[5]
+    num_actives, num_negatives, train_examples, val_examples, chunk_size = args
     
     wget.download('http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz')
     os.mkdir('./raw_data')
@@ -393,7 +389,8 @@ def main(args):
     #gc.collect()
     
 if __name__ == "__main__":
-    main(sys.argv)
+    args = list(map(int,sys.argv[1:]))
+    main(args)
 
 
 
