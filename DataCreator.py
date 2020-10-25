@@ -302,11 +302,6 @@ def create_training_example(backgrounds, activates, negatives):
 
 
 
-# Load audio segments using pydub
-activates, negatives, backgrounds = load_raw_audio()
-
-
-
 if __name__ == "__main__":
     wget.download('http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz')
     os.mkdir('./raw_data')
@@ -358,7 +353,8 @@ if __name__ == "__main__":
     
     plt.ioff()
     #fig = plt.figure()
-
+    # Load audio segments using pydub
+    activates, negatives, backgrounds = load_raw_audio()
 
     f1 = h5py.File("./XY_train/XY.h5",'w')
 
