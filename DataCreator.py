@@ -66,9 +66,9 @@ def graph_spectrogram(wav_file,is_train=False):
 
     #plt.savefig('train.png')
     # Clear the current axes.
-    #plt.cla() 
+    plt.cla() 
     # Clear the current figure.
-    #plt.clf() 
+    plt.clf() 
     # Closes all the figure windows.
     #plt.close()
 
@@ -346,7 +346,7 @@ def main(args):
     #************************************************************************************************************#
     
     plt.ioff()
-    #fig = plt.figure()
+    fig = plt.figure()
     # Load audio segments using pydub
     activates, negatives, backgrounds = load_raw_audio()
 
