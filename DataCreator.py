@@ -240,7 +240,7 @@ def create_training_example(backgrounds, activates, negatives):
     #np.random.seed(18)
 
     
-    background = np.zeros(10000) + 40
+    background = np.zeros(10001) + 40
     if len(backgrounds) != 0 :
       background = backgrounds[np.random.randint(0,len(backgrounds))]
     #Get random 10sec segment
