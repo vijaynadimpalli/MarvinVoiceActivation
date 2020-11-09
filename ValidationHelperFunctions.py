@@ -1,3 +1,7 @@
+import matplotlib.pyplot as plt
+from pydub import AudioSegment
+from DataCreator import *
+
 def detect_triggerword(filename,model):
     plt.subplot(2, 1, 1)
 
@@ -14,7 +18,7 @@ def detect_triggerword(filename,model):
     return predictions
 
 
-def chime_on_activate(filename, predictions, threshold):
+def chime_on_activate(filename,chime_file, predictions, threshold):
     audio_clip = AudioSegment.from_wav(filename)
     chime = AudioSegment.from_wav(chime_file)
     Ty = predictions.shape[1]

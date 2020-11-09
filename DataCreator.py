@@ -85,7 +85,7 @@ def match_target_amplitude(sound, target_dBFS):
     return sound.apply_gain(change_in_dBFS)
 
 # Load raw audio files for speech synthesis
-def load_raw_audio():
+def load_raw_audio(silent_background=False):
     activates = []
     backgrounds = []
     negatives = []
@@ -93,14 +93,17 @@ def load_raw_audio():
         if filename.endswith("wav"):
             activate = AudioSegment.from_wav("./raw_data/activates/"+filename)
             activates.append(activate)
-    for filename in os.listdir("./raw_data/backgrounds"):
-        if filename.endswith("wav") and filename=='exercise_bike.wav': #Only considering white noise for now
-            background = AudioSegment.from_wav("./raw_data/backgrounds/"+filename)
-            backgrounds.append(background)
     for filename in os.listdir("./raw_data/negatives"):
         if filename.endswith("wav"):
             negative = AudioSegment.from_wav("./raw_data/negatives/"+filename)
-            negatives.append(negative)
+            negatives.append(negative)            
+    for filename in os.listdir("./raw_data/backgrounds"):
+        if filename.endswith("wav") and filename=='exercise_bike.wav': #Only considering one background for now
+            background = AudioSegment.from_wav("./raw_data/backgrounds/"+filename)
+            backgrounds.append(background)
+
+    if silent_background:
+      backgrounds = []
     return activates, negatives, backgrounds
 
 
@@ -236,9 +239,10 @@ def create_training_example(backgrounds, activates, negatives):
     # Set the random seed
     #np.random.seed(18)
 
-    # Make background quieter
-
-    background = backgrounds[np.random.randint(0,len(backgrounds))]
+    
+    background = np.zeros(10000) + 40
+    if len(backgrounds) != 0 :
+      background = backgrounds[np.random.randint(0,len(backgrounds))]
     #Get random 10sec segment
     segment_start = np.random.randint(low=0,
                                       high=len(background) - 10000)
@@ -295,7 +299,7 @@ def create_training_example(backgrounds, activates, negatives):
     
 def main(args):
     
-    num_actives, num_negatives, train_examples, val_examples, chunk_size = args
+    num_actives, num_negatives, train_examples, val_examples, chunk_size, silent_background = args
     
     wget.download('http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz')
     os.mkdir('./raw_data')
@@ -348,7 +352,7 @@ def main(args):
     plt.ioff()
     fig = plt.figure()
     # Load audio segments using pydub
-    activates, negatives, backgrounds = load_raw_audio()
+    activates, negatives, backgrounds = load_raw_audio(silent_background)
 
     f1 = h5py.File("./XY_train/XY.h5",'w')
 
