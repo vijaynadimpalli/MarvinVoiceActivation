@@ -352,7 +352,7 @@ def main(args):
     plt.ioff()
     fig = plt.figure()
     # Load audio segments using pydub
-    activates, negatives, backgrounds = load_raw_audio(silent_background)
+    activates, negatives, backgrounds = load_raw_audio(bool(silent_background))
 
     f1 = h5py.File("./XY_train/XY.h5",'w')
 
