@@ -103,7 +103,7 @@ def load_raw_audio(silent_background=False):
             backgrounds.append(background)
 
     if silent_background:
-      backgrounds = []
+      backgrounds = [AudioSegment.silent(duration=10001,frame_rate=16000)]
     return activates, negatives, backgrounds
 
 
@@ -239,10 +239,8 @@ def create_training_example(backgrounds, activates, negatives):
     # Set the random seed
     #np.random.seed(18)
 
-    
-    background = np.zeros(10001) + 40
-    if len(backgrounds) != 0 :
-      background = backgrounds[np.random.randint(0,len(backgrounds))]
+
+    background = backgrounds[np.random.randint(0,len(backgrounds))]
     #Get random 10sec segment
     segment_start = np.random.randint(low=0,
                                       high=len(background) - 10000)
