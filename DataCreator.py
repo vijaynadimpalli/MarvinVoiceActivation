@@ -248,7 +248,7 @@ def create_training_example(backgrounds, activates, negatives):
     background = background[segment_start:segment_start + 10000]
 
 
-    background = background - 20
+    background = background - 30
 
     ### START CODE HERE ###
     # Step 1: Initialize y (label vector) of zeros (≈ 1 line)
