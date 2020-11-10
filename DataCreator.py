@@ -28,11 +28,11 @@ n_freq = 101  # Number of frequencies input to the model at each time step of th
 Ty = 496  # The number of time steps in the output of our model
 
 
-def create_onedrive_directdownload(onedrive_link):
-    data_bytes64 = base64.b64encode(bytes(onedrive_link, 'utf-8'))
-    data_bytes64_String = data_bytes64.decode('utf-8').replace('/','_').replace('+','-').rstrip("=")
-    resultUrl = f"https://api.onedrive.com/v1.0/shares/u!{data_bytes64_String}/root/content"
-    return resultUrl
+# def create_onedrive_directdownload(onedrive_link):
+#     data_bytes64 = base64.b64encode(bytes(onedrive_link, 'utf-8'))
+#     data_bytes64_String = data_bytes64.decode('utf-8').replace('/','_').replace('+','-').rstrip("=")
+#     resultUrl = f"https://api.onedrive.com/v1.0/shares/u!{data_bytes64_String}/root/content"
+#     return resultUrl
 
 
 
@@ -308,9 +308,6 @@ def main(args):
     os.mkdir('./XY_train')
     os.mkdir('./XY_dev')
     
-    #getting chime.wav
-
-    wget.download(create_onedrive_directdownload('https://1drv.ms/u/s!AjYYbRcfzZT5yxF7J6tKXP5yp8vl?e=psvSJK'))
     
     backend_ =  mpl.get_backend() 
     mpl.use("Agg")  # Prevent showing stuff
