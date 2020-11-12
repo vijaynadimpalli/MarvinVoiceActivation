@@ -1,14 +1,9 @@
-from DataCreator import *
-from PycharmInferenceHelper import *
-from RecordingClass import *
-import tensorflow as tf
+from Pycharm_Inference.PycharmInferenceHelper import *
 from tensorflow.keras.models import load_model
-from tensorflow.keras import backend as K
-from pydub.playback import play
 import time
 
-model = load_model("best_model&weights.h5",custom_objects={'get_f1':get_f1,'f1_m':f1_m})
-chime_file = "./chime.wav"
+model = load_model("models/best_model&weights.h5",custom_objects={'get_f1':get_f1,'f1_m':f1_m})
+chime_file = "Pycharm_Inference/chime.wav"
 
 while(1):
   recorder(time_limit_sec=3)               #Simpler fixed length recorder.....

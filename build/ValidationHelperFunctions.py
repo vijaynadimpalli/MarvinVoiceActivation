@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
-from pydub import AudioSegment
-from DataCreator import *
+from .DataCreator import *
 
 def detect_triggerword(filename,model):
     plt.subplot(2, 1, 1)
@@ -45,7 +43,7 @@ https://hacks.mozilla.org/2014/06/easy-audio-capture-with-the-mediarecorder-api/
 https://air.ghost.io/recording-to-an-audio-file-using-html5-and-js/
 https://stackoverflow.com/a/49019356
 """
-from IPython.display import HTML, Audio
+from IPython.display import HTML
 from google.colab.output import eval_js
 from base64 import b64decode
 import numpy as np

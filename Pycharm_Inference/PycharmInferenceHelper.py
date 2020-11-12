@@ -3,10 +3,7 @@ from tensorflow.keras import backend as K
 import pyaudio
 import wave
 #import keyboard
-import matplotlib.pyplot as plt
-from pydub import AudioSegment
-from DataCreator import *
-import time
+from build.DataCreator import *
 import webbrowser
 
 def detect_triggerword(filename, model):
@@ -17,6 +14,7 @@ def detect_triggerword(filename, model):
     x = x.swapaxes(0, 1)
     x = np.expand_dims(x, axis=0)
     predictions = model.predict(x)
+
     # plt.subplot(2, 1, 2)
     # plt.plot(predictions[0, :, 0])
     # plt.ylabel('probability')
@@ -42,6 +40,7 @@ def chime_on_activate(filename, chime_file, predictions, threshold):
             consecutive_timesteps = 0
 
     audio_clip.export("chime_output.wav", format='wav')
+
 
 def display_on_detect(predictions,threshold):
     Ty = predictions.shape[1]
