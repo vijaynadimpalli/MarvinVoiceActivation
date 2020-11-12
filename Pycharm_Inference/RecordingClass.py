@@ -71,5 +71,3 @@ class RecAUD:
         self.st = 0
 
 
-# Create an object of the ProgramGUI class to begin the program.
-#guiAUD = RecAUD()

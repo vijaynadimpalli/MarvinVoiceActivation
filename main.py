@@ -1,6 +1,8 @@
 from Pycharm_Inference.PycharmInferenceHelper import *
+from Pycharm_Inference.RecordingClass import *
 from tensorflow.keras.models import load_model
 import time
+from pydub.playback import play
 
 model = load_model("models/best_model&weights.h5",custom_objects={'get_f1':get_f1,'f1_m':f1_m})
 chime_file = "Pycharm_Inference/chime.wav"
@@ -26,6 +28,6 @@ while(1):
 
   print("Inference Time : %.2f sec"%(time.time()-start_time))
 
-# chime_on_activate('recording.wav',chime_file, prediction, 0.5)
-# out = AudioSegment.from_file('chime_output.wav')
-# play(out)
+  # chime_on_activate('recording.wav',chime_file, prediction, 0.5)
+  # out = AudioSegment.from_file('chime_output.wav')
+  # play(out)
